@@ -95,23 +95,209 @@ def autenticarUsuario():
         return {"mensage": "Ususario o contraseña Erroneos"}, 401
 
 
-@app.route("/estudiante", methods=["POST"])
-def crearEstudiante():
-        url = dataConfig["url-backend-academic"] + "/estudiante"
-        headers = {"Content-Type": "application/json"}
-        body = request.get_json()
+#path candidato
+@app.route("/candidato/<string:idCandidato>/partido/<string_id_Partido>", methods=['POST'])
+def crearCandidato(idCandidato,id_Partido):
+    url = dataConfig["url-backend-registraduria"] + "/candidato" + idCandidato + "/partido" + id_Partido
+    headers = {"Content-Type": "application/json"}
+    body = request.get_json()
 
-        response = requests.post(url, json=body, headers=headers)
+    response = requests.post(url, json=body, headers=headers)
 
-        return response.json()
+    return response.json()
 
-@app.route("/estudiante/<string:idObject>", methods=['GET'])
-def buscarEstudiante(idObject):
-    url = dataConfig["url-backend-academic"] + "/estudiante"+ idObject
+@app.route("/candidato/<string:idObject>", methods=['GET'])
+def buscarCandidato(idObject):
+    url = dataConfig["url-backend-registraduria"] + "/candidato" + idObject
     headers = {"Content-Type": "application/json"}
 
 
     response = requests.get(url, headers=headers)
+
+    return response.json()
+
+@app.route("/candidato", methods=['GET'])
+def buscarTodosLosCandidatos():
+    url= dataConfig["url-backend-registraduria"] + "/candidato"
+    headers = {"Content-Type": "application/json"}
+
+    response=requests.get(url,headers=headers)
+
+    return response.json()
+
+@app.route("/candidato/<string:id>", methods=['PUT'])
+def actualizarCandidato(id):
+    url= dataConfig["url-backend-registraduria"] + "/candidato" + id
+    headers= {"Content-Type": "application/json"}
+    body= request.get_json()
+
+    response=requests.put(url,json=body, headers=headers)
+
+    return response.json()
+
+#relacion uno a muchos
+
+@app.route("/candidato/<string:idCandidato>/partido/<string:id_Partido>",methods=['PUT'])
+def asignarPartido(idCandidato,id_Partido):
+    url= dataConfig["url-backend-registraduria"] + "/candidato" + idCandidato + "/partido" + id_Partido
+    headers= {"Content-Type": "application/json"}
+
+    response=requests.put(url,headers=headers)
+
+    return response.json()
+
+@app.route("/candidato/<string:idObject>", methods=['DELETE'])
+def eliminarCandidato(idObject):
+    url= dataConfig["url-backend-registraduria"] + "/candidato" + idObject
+    headers= {"Content-Type": "application/json"}
+
+    response= requests.delete(url, headers=headers)
+
+    return response.json()
+
+#path Mesa
+
+@app.route("/mesa",methods=['POST'])
+def crearMesa():
+    url= dataConfig["url-backend-registraduria"] + "/mesa"
+    headers= {"Content-Type": "application/json"}
+    body= request.get_json()
+
+    response=requests.post(url,json=body, headers=headers)
+
+    return response.json()
+
+@app.route("/mesa/<string:idMesa>",methods=['GET'])
+def buscarMesa(idMesa):
+    url= dataConfig["url-backend-registraduria"] + "/mesa" + idMesa
+    headers = {"Content-Type": "application/json"}
+
+    response=requests.get(url,headers=headers)
+
+    return response.json()
+
+@app.route("/mesa",methods=['GET'])
+def buscarTodasLasMesas():
+    url= dataConfig["url-backend-registraduria"] + "/mesa"
+    headers= {"Content-Type": "application/json"}
+
+    response=requests.get(url, headers=headers)
+
+    return response.json()
+
+@app.route("/mesa/<string:idMesa>", methods=['PUT'])
+def actualizarMesa(idMesa):
+    url= dataConfig["url-backend-registraduria"] + "/mesa" + idMesa
+    headers= {"Content-Type": "application/json"}
+    body=request.get_json()
+
+    response=requests.put(url, json=body, headers=headers)
+
+    return response.json()
+
+@app.route("/mesa/<string:idMesa>", methods=['DELETE'])
+def eliminarMesa(idMesa):
+    url= dataConfig["url-backend-registraduria"] + "/mesa" + idMesa
+    headers= {"Content-Type": "application/json"}
+
+    response= requests.delete(url, headers=headers)
+
+    return response.json()
+
+#path de Partido
+@app.route("/partidos",methods=['POST'])
+def crearPartido():
+    url= dataConfig["url-backend-registraduria"] + "/partidos"
+    headers= {"Content-Type": "application/json"}
+    body= request.get_json()
+
+    response=requests.post(url, json=body, headers=headers)
+
+    return response.json()
+
+@app.route("/partidos/<string:id>",methods=['GET'])
+def buscarPartido(id):
+    url = dataConfig["url-backend-registraduria"] + "/partidos" + id
+    headers= {"Content-Type": "application/json"}
+
+    response= requests.get(url,headers=headers)
+
+    return response.json()
+
+@app.route("/partidos",methods=['GET'])
+def buscarTodosLosPartidos():
+    url= dataConfig["url-backend-registraduria"] + "/partidos"
+    headers= {"Content-Type": "application/json"}
+
+    response=requests.get(url,headers=headers)
+
+    return response.json()
+
+@app.route("/partidos/<string:idPartido>", methods=['PUT'])
+def actualizarPartido(idPartido):
+    url = dataConfig["url-backend-registraduria"] + "/partidos" + idPartido
+    headers={"Content-Type": "application/json"}
+    body= request.get_json()
+
+    response=requests.put(url,json=body ,headers=headers)
+
+    return response.json()
+
+@app.route("/partidos/<string:id>",methods=['DELETE'])
+def eliminarPartido(id):
+    url = dataConfig["url-backend-registraduria"] + "/partidos" + id
+    headers = {"Content-Type": "application/json"}
+
+    response=requests.delete(url,headers=headers)
+
+    return response.json()
+
+#path Resultado con relacion muchos a muchos
+
+@app.route("/resultado/candidato/<string:idCandidato>/mesa/<string:idMesa>", methods=['POST'])
+def crearResultado(idCandidato, idMesa):
+    url=dataConfig["url-backend-registraduria"] + "/resultado/candidato/" + idCandidato + "/mesa"+ idMesa
+    headers = {"Content-Type": "application/json"}
+    body= request.get_json()
+
+    response=requests.post(url,json=body, headers=headers)
+
+    return response.json()
+
+@app.route("/resultado/<string:idObject>",methods=['GET'])
+def buscarResultado(idObject):
+    url=dataConfig["url-backend-registraduria"] + "/resultado" + idObject
+    headers = {"Content-Type": "application/json"}
+
+    response=requests.get(url,headers=headers)
+
+    return response.json()
+
+@app.route("/resultado",methods=['GET'])
+def buscarTodosLosResultados():
+    url=dataConfig["url-backend-registraduria"] + "/resultado"
+    headers= {"Content-Type": "application/json"}
+
+    response=requests.get(url, headers=headers)
+
+    return response.json()
+
+@app.route("/resultado/<string:idResultado>",methods=['PUT'])
+def actualizarResultado(idResultado):
+    url = dataConfig["url-backend-registraduria"] + "/resultado" + idResultado
+    headers={"Content-Type": "application/json"}
+    body=request.get_json()
+
+    response=requests.put(url,json=body, headers=headers)
+
+    return response.json()
+
+@app.route("/resultado/<string:idObject>",methods=['DELETE'])
+def eliminarResultado(idObject):
+    url=dataConfig["url-backend-registraduria"] + "/resultado" + idObject
+    headers = {"Content-Type": "application/json"}
+
+    response=requests.delete(url, headers=headers)
 
     return response.json()
 
