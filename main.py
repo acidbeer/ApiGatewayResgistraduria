@@ -63,7 +63,7 @@ def transformarUrl(urlAcceso):
         if re.search('\\d',palabra):
             urlAcceso = urlAcceso.replace(palabra,"?")
 
-    print("urldespues de transformarla:", urlAcceso)
+    print("urldespues de transformarla..:", urlAcceso)
     return urlAcceso
 
 
