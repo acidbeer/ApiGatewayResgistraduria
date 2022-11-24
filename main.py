@@ -1,9 +1,12 @@
-
-
 from flask import Flask
 from flask import jsonify
 from flask import request
 from flask_cors import CORS
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, verify_jwt_in_request
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
 
 
 import json
@@ -14,12 +17,8 @@ from waitress import serve
 
 
 app=Flask(__name__)
+cors = CORS(app)
 
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import create_access_token, verify_jwt_in_request
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
 app.config["JWT_SECRET_KEY"]="super-secret"
 jwt = JWTManager(app)
 
@@ -30,27 +29,30 @@ def middleware():
         pass
     else:
 
-        verify_jwt_in_request()
+        if(verify_jwt_in_request()):
+            infoUsuario = get_jwt_identity()
+            idRol = infoUsuario["rol"]["_id"]
+            print("rol del usuario es: ", idRol)
 
-        infoUsuario = get_jwt_identity()
-        idRol = infoUsuario["rol"]["_id"]
-        print("rol del usuario es: ", idRol)
+            urlAcceso = transformarUrl(urlAcceso)
 
-        urlAcceso=transformarUrl(urlAcceso)
+            urlValidarpermiso = dataConfig["url-backend-security"] + "/permisos-rol/validar-permiso/rol/" + idRol
+            headersValidarpermiso = {"Content-Type": "application/json"}
+            bodyValidarpermiso = {
+                "url": urlAcceso,
+                "metodo": request.method
+            }
+            respuestaValidarpermiso = requests.get(urlValidarpermiso, json=bodyValidarpermiso,
+                                                   headers=headersValidarpermiso)
+            print("respuesta validar permiso: ", respuestaValidarpermiso)
 
-        urlValidarpermiso = dataConfig["url-backend-security"] + "/permisos-rol/validar-permiso/rol/" + idRol
-        headersValidarpermiso = {"Content-Type": "application/json"}
-        bodyValidarpermiso = {
-            "url": urlAcceso,
-            "metodo": request.method
-        }
-        respuestaValidarpermiso = requests.get(urlValidarpermiso, json=bodyValidarpermiso,headers=headersValidarpermiso)
-        print("respuesta validar permiso: ", respuestaValidarpermiso)
+            if (respuestaValidarpermiso.status_code == 200):
+                pass
+            else:
+                return {"mensaje ": "Acceso denegado"}, 401
 
-        if (respuestaValidarpermiso.status_code == 200):
-            pass
-        else:
-            return {"mensaje ": "Acceso denegado"},401
+
+
 
 
 def transformarUrl(urlAcceso):
@@ -69,7 +71,6 @@ def transformarUrl(urlAcceso):
 
 @app.route("/login",methods=['POST'])
 def autenticarUsuario():
-
 
     url= dataConfig["url-backend-security"] + "/usuario/validar-usuario"
     bodyRequest= request.get_json()
@@ -96,9 +97,9 @@ def autenticarUsuario():
 
 
 #path candidato
-@app.route("/candidato/<string:idCandidato>/partido/<string_id_Partido>", methods=['POST'])
-def crearCandidato(idCandidato,id_Partido):
-    url = dataConfig["url-backend-registraduria"] + "/candidato" + idCandidato + "/partido" + id_Partido
+@app.route("/candidato", methods=['POST'])
+def crearCandidato():
+    url = dataConfig["url-backend-registraduria"] + "/candidato"
     headers = {"Content-Type": "application/json"}
     body = request.get_json()
 
